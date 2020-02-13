@@ -1,0 +1,27 @@
+c-----------------------------------------------------------------
+c    Wind-braking  ksk        kmm        ksc   -> Vcrit
+c-----------------------------------------------------------------
+c    Skumanich:    input      0          0     -> Vcrit=0.
+c    MM       :    0          input      0     -> VCR it=0.
+c    SK-MM    :    input      input      0     -> Vcrit computed, wsat=input
+c    Schatzman:    0          0          input -> Vcrit=0.
+c    Charbonneau:  2.e-11     1.e-10     0     -> wsat=input
+c-----------------------------------------------------------------
+
+pinit              8.0d0          	day : initial rotation period = constante jusqu'au decouplage
+masse              1.0d0          	solar mass
+modele evolutif    mod10moa17short2.dat
+constantes: ksk    0.0d-12        	w^3 law
+            kmm    0.0d-11         	w^2 law
+            ksc    0. 
+            kmp    0.1d1                
+parameter K        1.d0
+parameter K1MP     2.1d0
+parameter K2MP     0.0506d0
+parameter m        0.22d0           Matt et al. (2012)
+taudec             14.0d6          	year  
+tdisk              9.0d6          	year  
+victor             0
+parameter K3       2.8
+parameter K4       0.2
+parameter mvic     0.11
