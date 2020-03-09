@@ -401,9 +401,6 @@ do while (ttmp .le. Time)
 		frotstmp = 0.0
 	endif 
 
-
-		
-
 	!classical calculation
 	
 	
