@@ -11,3 +11,7 @@ Designed to follow to evolution of both stellar rotation rate and planetary orbi
 
     perl Makefile.py
     ./condinit
+    
+    
+The BGM version of PROBE include, in the rotational evolution part, the evolution of the mass of the star.
+Since the mass of the star only decreases a little between the PMS and the end of the MS, this evolution is usually not included. 
