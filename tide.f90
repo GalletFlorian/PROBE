@@ -8,10 +8,10 @@ implicit none
 
 contains
 
-subroutine TIDESTEST(hamlet,horatio,t_init,ap0,ep0,obls0,oblp0,wconvi,wradi,rotp0 &
+subroutine TIDESTEST(age_output,age_output_final,t_init,ap0,ep0,obls0,oblp0,wconvi,wradi,rotp0 &
     ,Mp,Ms,Rp,Rs,d2RSdt,d2QSdt,epsilon_squared,sigmap,sigmas,dttry,rg2s,rg2p &
     ,filename1,filename2,filename3,Time,indice0,indicend &
-    ,toto,radius,Qs_inv,a_roche,babaorum,spin_sat,Kwind,cst_diss,sigmas_eq,Sun_dyn_freq, &
+    ,age,radius,Qs_inv,a_roche,babaorum,spin_sat,Kwind,cst_diss,sigmas_eq,Sun_dyn_freq, &
                     Lum,d2Ldt,Teff,d2Teffdt,r2conv,d2r2convdt,r2rad,d2r2raddt,Mrad,d2Mraddt,Rrad,d2Rraddt,sizev, &
                     sizeder,ori,timedec,tideop)
 
@@ -23,8 +23,6 @@ implicit none
 ! (Numerical recipes in fortran, the Art of Scientific
 ! Computing. W.H. Press, S.A. Teukolsky, W.T. Vetterling,
 ! B.P. Flannery)
-
-
 !input
 
 integer :: sizev,sizeder,ori,flagcrash,flagcrashout,out
@@ -41,7 +39,7 @@ integer :: indice0,indicend,babaorum,cst_diss,tideop
 
 
 real(dp), dimension(sizeder) :: d2RSdt,d2QSdt,d2Ldt,d2Teffdt,d2r2convdt,d2r2raddt,d2Mraddt,d2Rraddt
-real(dp), dimension(sizev) :: Lum,Teff, tstar,r2conv,r2rad,Mrad,Rrad,toto,radius,Qs_inv
+real(dp), dimension(sizev) :: Lum,Teff, tstar,r2conv,r2rad,Mrad,Rrad,age,radius,Qs_inv
 
 
 real(dp) :: dt, dtmin,dtmax,eps,safety,pgrow,pshrink,errcon
@@ -51,7 +49,7 @@ real(dp) :: Rs0,rg2s0,frotstmp,alphac,Q_str_inv
 real(dp) :: Ls0,Teffs0, r2convs0,r2rads0,Rrads0,Mrads0
 real(dp) :: Ls,Teffs, r2convs,r2rads,Rrads,Mrads
     
-real(dp) :: hamlet(474),Rstar(10000),horatio(3,474)
+real(dp) :: age_output(474),Rstar(10000),age_output_final(3,474)
 real(dp) :: Rs
 
 real(dp) :: tmp,delta_t,dttemp,errmax,fwindtmp,infinity,dtnext
@@ -78,7 +76,7 @@ real(dp) :: enerdotp1,enerdots1
 
 real(dp) :: alphaout,norbout
 
-integer :: debug,j,i,int,k,kkk,numbertoto,comp,flagtinit
+integer :: debug,j,i,int,k,kkk,comp,flagtinit
 
 real(dp),dimension(6) :: aa,cc,ccs,sigmas_tabl,Rs_tabl
 real(dp),dimension(6) :: Ls_tabl,Teffs_tabl,r2convs_tabl,r2rads_tabl,Mrads_tabl,Rrads_tabl,rotstmp_tabl
@@ -169,7 +167,7 @@ flagcrash = 0
 
 !!write(6,*)'Begin tables creation'
 ! Creation of tables of a, e, rot
-ndata_line  =  size(hamlet)
+ndata_line  =  size(age_output)
 
 allocate( t(ndata_line) )
 allocate( a(ndata_line) )
@@ -253,18 +251,18 @@ errcon   =  (5/safety)**(1/pgrow)
 
 ! Interpolate Radius
 
-call splint(toto,radius,d2RSdt,indicend-(indice0)+1,t_init/yr,Rs0)
+call splint(age,radius,d2RSdt,indicend-(indice0)+1,t_init/yr,Rs0)
 Rs0 =Rs0 * Rsun
 Rs = Rs0
 
 ! Interpolate of stellar quantities for rotevol
 
-call splint(toto,Lum,d2Ldt,indicend-(indice0)+1,t_init/yr,Ls0)
-call splint(toto,Teff,d2Teffdt,indicend-(indice0)+1,t_init/yr,Teffs0)
-call splint(toto,r2conv,d2r2convdt,indicend-(indice0)+1,t_init/yr,r2convs0)
-call splint(toto,r2rad,d2r2raddt,indicend-(indice0)+1,t_init/yr,r2rads0)
-call splint(toto,Mrad,d2Mraddt,indicend-(indice0)+1,t_init/yr,Mrads0)
-call splint(toto,Rrad,d2Rraddt,indicend-(indice0)+1,t_init/yr,Rrads0)
+call splint(age,Lum,d2Ldt,indicend-(indice0)+1,t_init/yr,Ls0)
+call splint(age,Teff,d2Teffdt,indicend-(indice0)+1,t_init/yr,Teffs0)
+call splint(age,r2conv,d2r2convdt,indicend-(indice0)+1,t_init/yr,r2convs0)
+call splint(age,r2rad,d2r2raddt,indicend-(indice0)+1,t_init/yr,r2rads0)
+call splint(age,Mrad,d2Mraddt,indicend-(indice0)+1,t_init/yr,Mrads0)
+call splint(age,Rrad,d2Rraddt,indicend-(indice0)+1,t_init/yr,Rrads0)
 
 
 
@@ -426,7 +424,7 @@ do while (ttmp .le. Time)
     do int = 1, 6 
     
 	
-        call splint(toto,radius,d2RSdt,indicend-(indice0)+1,(ttmp+aa(int)*dt)/yr,Rs)
+        call splint(age,radius,d2RSdt,indicend-(indice0)+1,(ttmp+aa(int)*dt)/yr,Rs)
         Rs = Rs * Rsun
         Rs_tabl(int) = Rs
         
@@ -435,22 +433,22 @@ do while (ttmp .le. Time)
         
         	
             !Change of stellar parameters
-            call splint(toto,Lum,d2Ldt,indicend-(indice0)+1,(ttmp+aa(int)*dt)/yr,Ls)
+            call splint(age,Lum,d2Ldt,indicend-(indice0)+1,(ttmp+aa(int)*dt)/yr,Ls)
             Ls_tabl(int) = Ls
             
-            call splint(toto,Teff,d2Teffdt,indicend-(indice0)+1,(ttmp+aa(int)*dt)/yr,Teffs)
+            call splint(age,Teff,d2Teffdt,indicend-(indice0)+1,(ttmp+aa(int)*dt)/yr,Teffs)
             Teffs_tabl(int) = Teffs
 
-            call splint(toto,r2conv,d2r2convdt,indicend-(indice0)+1,(ttmp+aa(int)*dt)/yr,r2convs)
+            call splint(age,r2conv,d2r2convdt,indicend-(indice0)+1,(ttmp+aa(int)*dt)/yr,r2convs)
             r2convs_tabl(int) = r2convs
 
-            call splint(toto,r2rad,d2r2raddt,indicend-(indice0)+1,(ttmp+aa(int)*dt)/yr,r2rads)
+            call splint(age,r2rad,d2r2raddt,indicend-(indice0)+1,(ttmp+aa(int)*dt)/yr,r2rads)
             r2rads_tabl(int) = r2rads
 
-            call splint(toto,Mrad,d2Mraddt,indicend-(indice0)+1,(ttmp+aa(int)*dt)/yr,Mrads)
+            call splint(age,Mrad,d2Mraddt,indicend-(indice0)+1,(ttmp+aa(int)*dt)/yr,Mrads)
             Mrads_tabl(int) = Mrads
 
-            call splint(toto,Rrad,d2Rraddt,indicend-(indice0)+1,(ttmp+aa(int)*dt)/yr,Rrads)
+            call splint(age,Rrad,d2Rraddt,indicend-(indice0)+1,(ttmp+aa(int)*dt)/yr,Rrads)
             Rrads_tabl(int) = Rrads
         endif
         
@@ -460,7 +458,7 @@ do while (ttmp .le. Time)
             if ( n_orb .le. 2.d0*rotstmp) then 
 
                 ! Interpolation of the dissipation Q
-                call splint(toto,Qs_inv,d2QSdt,indicend-(indice0),(ttmp+aa(int)*dt)/yr,Q_str_inv)
+                call splint(age,Qs_inv,d2QSdt,indicend-(indice0),(ttmp+aa(int)*dt)/yr,Q_str_inv)
 
                 epsilon_squared = rotstmp*rotstmp/Sun_dyn_freq
                 lag_angle = 3.d0*epsilon_squared*Q_str_inv/4.d0
@@ -482,7 +480,7 @@ do while (ttmp .le. Time)
 				write(6,*) tstar2,aa(5)*dt/yr
 				write(6,*) Teffs0,Rs0,r2convs0,r2rads0,Mrads0,Rrads0
 				do i=1,indicend-(indice0)+1
-				 write(6,*) toto(i), Lum(i) , d2Ldt(i)
+				 write(6,*) age(i), Lum(i) , d2Ldt(i)
 				enddo
 				stop
 			endif    
@@ -1516,7 +1514,7 @@ do while (ttmp .le. Time)
     	 !endif	
     endif
     
-    if ( ttmp .ge. hamlet(kkk)*yr ) then 
+    if ( ttmp .ge. age_output(kkk)*yr ) then 
     
     
     
@@ -1591,7 +1589,7 @@ do while (ttmp .le. Time)
         kkk = kkk+1
         !break
         
-        if (kkk .ge. size(hamlet)) then
+        if (kkk .ge. size(age_output)) then
         	write(6,*) "Outside bound, stop"
         	stop
         endif
