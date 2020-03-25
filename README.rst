@@ -6,14 +6,14 @@
 
 Designed to follow to evolution of both stellar rotation rate and planetary orbital period. Developed for low mass stars 0.5 < M\ :sub:`star`\/M\ :sub:`sun`\  < 1.0.
 
-The choice of initial SMA and planetary mass are done in condinit.f90 (sma_tabl and mass_planet)
+The choice of initial SMA and planetary mass is done in condinit.f90 (sma_tabl and mass_planet)
 
 .. code-block:: bash
 
     perl Makefile.py
     ./condinit
     
-The description of the input parameters can be found here https://github.com/GalletFlorian/JEVOL
+The description of the input parameters for the rotation part can be found here https://github.com/GalletFlorian/JEVOL
 
     
 The BGM version of PROBE include, in the rotational evolution part, the evolution of the mass of the star.
